@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -35,266 +34,265 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-font-family: var(–sans);
-background: var(–bg);
-color: var(–ink);
-min-height: 100vh;
-font-size: 15px;
-line-height: 1.6;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* grain overlay */
 body::before {
-content: ‘’;
-position: fixed; inset: 0;
-background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
-pointer-events: none; z-index: 0; opacity: .5;
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: .5;
 }
 
 /* ── HEADER ── */
 .site-header {
-padding: 28px 40px 20px;
-display: flex; align-items: flex-end; justify-content: space-between;
-border-bottom: 1px solid var(–rule);
-position: relative; z-index: 10;
+  padding: 28px 40px 20px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  border-bottom: 1px solid var(--rule);
+  position: relative; z-index: 10;
 }
 .site-title {
-font-family: var(–serif);
-font-size: 20px; font-weight: 600;
-color: var(–ink); letter-spacing: -0.01em;
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.01em;
 }
 .site-sub {
-font-size: 12px; color: var(–ink3);
-font-family: var(–mono);
-margin-top: 2px;
+  font-size: 12px; color: var(--ink3);
+  font-family: var(--mono);
+  margin-top: 2px;
 }
 .mode-toggle {
-display: flex; gap: 0;
-border: 1px solid var(–rule);
-border-radius: 8px; overflow: hidden;
-background: var(–card-bg);
+  display: flex; gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 8px; overflow: hidden;
+  background: var(--card-bg);
 }
 .mode-btn {
-padding: 8px 18px; font-size: 13px; font-weight: 500;
-color: var(–ink3); cursor: pointer; border: none;
-background: transparent; font-family: var(–sans);
-transition: all .2s;
+  padding: 8px 18px; font-size: 13px; font-weight: 500;
+  color: var(--ink3); cursor: pointer; border: none;
+  background: transparent; font-family: var(--sans);
+  transition: all .2s;
 }
-.mode-btn.active { background: var(–ink); color: #fefcf8; }
+.mode-btn.active { background: var(--ink); color: #fefcf8; }
 
 /* ── TOPIC NAV ── */
 .topic-nav {
-padding: 16px 40px;
-display: flex; gap: 8px; flex-wrap: wrap;
-border-bottom: 1px solid var(–rule);
-position: relative; z-index: 10;
+  padding: 16px 40px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule);
+  position: relative; z-index: 10;
 }
 .topic-btn {
-padding: 6px 16px; font-size: 12px; font-weight: 500;
-border-radius: 20px; cursor: pointer;
-border: 1px solid var(–rule);
-background: var(–card-bg); color: var(–ink2);
-font-family: var(–sans); transition: all .2s;
-letter-spacing: 0.01em;
+  padding: 6px 16px; font-size: 12px; font-weight: 500;
+  border-radius: 20px; cursor: pointer;
+  border: 1px solid var(--rule);
+  background: var(--card-bg); color: var(--ink2);
+  font-family: var(--sans); transition: all .2s;
+  letter-spacing: 0.01em;
 }
-.topic-btn:hover { border-color: var(–ink3); color: var(–ink); }
-.topic-btn.active { background: var(–ink); color: #fefcf8; border-color: var(–ink); }
+.topic-btn:hover { border-color: var(--ink3); color: var(--ink); }
+.topic-btn.active { background: var(--ink); color: #fefcf8; border-color: var(--ink); }
 
 /* ── MAIN ── */
 .main { max-width: 900px; margin: 0 auto; padding: 36px 40px 80px; position: relative; z-index: 1; }
 
 /* ── PROGRESS ── */
 .progress-row {
-display: flex; align-items: center; justify-content: space-between;
-margin-bottom: 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px;
 }
-.progress-label { font-size: 12px; font-family: var(–mono); color: var(–ink3); }
+.progress-label { font-size: 12px; font-family: var(--mono); color: var(--ink3); }
 .progress-track {
-flex: 1; margin: 0 16px; height: 3px;
-background: var(–rule); border-radius: 2px; overflow: hidden;
+  flex: 1; margin: 0 16px; height: 3px;
+  background: var(--rule); border-radius: 2px; overflow: hidden;
 }
 .progress-fill {
-height: 100%; background: var(–ink);
-border-radius: 2px; transition: width .4s;
+  height: 100%; background: var(--ink);
+  border-radius: 2px; transition: width .4s;
 }
 
 /* ══════════════════════════════════════
-FLIP CARD MODE
+   FLIP CARD MODE
 ══════════════════════════════════════ */
 #flip-mode { display: block; }
 #list-mode { display: none; }
 
 .flip-stage {
-margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 /* 不用 3D flip，改用 fade 切換，手機更穩定 */
 .flip-card-wrap {
-width: 100%;
-position: relative;
-cursor: pointer;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
 }
 .flip-face {
-width: 100%;
-border-radius: var(–radius);
-background: var(–card-bg);
-box-shadow: var(–card-shadow);
-padding: 36px 40px;
-display: flex; flex-direction: column;
-justify-content: flex-start;
-transition: opacity .25s, transform .25s;
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  padding: 36px 40px;
+  display: flex; flex-direction: column;
+  justify-content: flex-start;
+  transition: opacity .25s, transform .25s;
 }
 .flip-face.back {
-display: none;
+  display: none;
 }
 .flip-card-wrap.flipped .flip-face.front {
-display: none;
+  display: none;
 }
 .flip-card-wrap.flipped .flip-face.back {
-display: flex;
+  display: flex;
 }
 
 .flip-card-cat {
-font-size: 10px; font-family: var(–mono);
-letter-spacing: .14em; text-transform: uppercase;
-margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  font-size: 10px; font-family: var(--mono);
+  letter-spacing: .14em; text-transform: uppercase;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
 }
 .cat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
 .flip-q {
-font-family: var(–serif);
-font-size: 22px; font-weight: 500;
-color: var(–ink); line-height: 1.5;
-margin-bottom: 12px;
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 500;
+  color: var(--ink); line-height: 1.5;
+  margin-bottom: 12px;
 }
 .flip-hint {
-font-size: 13px; color: var(–ink3);
-font-family: var(–mono);
+  font-size: 13px; color: var(--ink3);
+  font-family: var(--mono);
 }
 .flip-tap {
-margin-top: 20px;
-font-size: 11px; font-family: var(–mono);
-color: var(–ink3); letter-spacing: .06em;
-align-self: flex-end;
+  margin-top: 20px;
+  font-size: 11px; font-family: var(--mono);
+  color: var(--ink3); letter-spacing: .06em;
+  align-self: flex-end;
 }
 
 .flip-a-label {
-font-size: 10px; font-family: var(–mono);
-letter-spacing: .14em; text-transform: uppercase;
-color: var(–ink3); margin-bottom: 16px;
+  font-size: 10px; font-family: var(--mono);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 16px;
 }
 .flip-answer {
-font-size: 15px; color: var(–ink);
-line-height: 1.85;
+  font-size: 15px; color: var(--ink);
+  line-height: 1.85;
 }
-.flip-answer strong { color: var(–ink); font-weight: 600; }
+.flip-answer strong { color: var(--ink); font-weight: 600; }
 .flip-answer .kw {
-display: inline-block;
-background: var(–ink); color: #fefcf8;
-font-family: var(–mono); font-size: 11px; font-weight: 500;
-padding: 1px 7px; border-radius: 4px;
-letter-spacing: .04em; margin: 1px 2px;
-vertical-align: middle;
+  display: inline-block;
+  background: var(--ink); color: #fefcf8;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  padding: 1px 7px; border-radius: 4px;
+  letter-spacing: .04em; margin: 1px 2px;
+  vertical-align: middle;
 }
-.flip-answer .hl { color: var(–teal); font-weight: 500; }
-.flip-answer .warn { color: var(–orange); font-weight: 500; }
-.flip-answer .danger { color: var(–red); font-weight: 500; }
+.flip-answer .hl { color: var(--teal); font-weight: 500; }
+.flip-answer .warn { color: var(--orange); font-weight: 500; }
+.flip-answer .danger { color: var(--red); font-weight: 500; }
 
 .flip-answer table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
-.flip-answer table td { padding: 6px 10px; border-bottom: 1px solid var(–rule2); vertical-align: top; }
-.flip-answer table td:first-child { color: var(–ink3); font-family: var(–mono); font-size: 11px; white-space: nowrap; width: 28%; }
+.flip-answer table td { padding: 6px 10px; border-bottom: 1px solid var(--rule2); vertical-align: top; }
+.flip-answer table td:first-child { color: var(--ink3); font-family: var(--mono); font-size: 11px; white-space: nowrap; width: 28%; }
 
 .flip-answer ul { padding-left: 0; list-style: none; }
-.flip-answer ul li { padding: 4px 0; border-bottom: 1px solid var(–rule2); display: flex; gap: 10px; }
+.flip-answer ul li { padding: 4px 0; border-bottom: 1px solid var(--rule2); display: flex; gap: 10px; }
 .flip-answer ul li:last-child { border-bottom: none; }
-.flip-answer ul li::before { content: ‘—’; color: var(–ink3); flex-shrink: 0; }
+.flip-answer ul li::before { content: '—'; color: var(--ink3); flex-shrink: 0; }
 
 /* card nav */
 .card-nav {
-display: flex; align-items: center; justify-content: center; gap: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
 }
 .nav-arrow {
-width: 44px; height: 44px; border-radius: 50%;
-border: 1px solid var(–rule); background: var(–card-bg);
-display: flex; align-items: center; justify-content: center;
-cursor: pointer; transition: all .2s; color: var(–ink2);
-font-size: 18px;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--rule); background: var(--card-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s; color: var(--ink2);
+  font-size: 18px;
 }
-.nav-arrow:hover { border-color: var(–ink3); color: var(–ink); box-shadow: var(–card-shadow); }
+.nav-arrow:hover { border-color: var(--ink3); color: var(--ink); box-shadow: var(--card-shadow); }
 .nav-arrow:disabled { opacity: .3; pointer-events: none; }
 .card-counter {
-font-size: 13px; font-family: var(–mono);
-color: var(–ink3); min-width: 70px; text-align: center;
+  font-size: 13px; font-family: var(--mono);
+  color: var(--ink3); min-width: 70px; text-align: center;
 }
 .shuffle-btn {
-padding: 8px 16px; font-size: 12px; font-weight: 500;
-border-radius: 20px; border: 1px solid var(–rule);
-background: var(–card-bg); color: var(–ink2);
-cursor: pointer; font-family: var(–sans); transition: all .2s;
+  padding: 8px 16px; font-size: 12px; font-weight: 500;
+  border-radius: 20px; border: 1px solid var(--rule);
+  background: var(--card-bg); color: var(--ink2);
+  cursor: pointer; font-family: var(--sans); transition: all .2s;
 }
-.shuffle-btn:hover { border-color: var(–ink3); color: var(–ink); }
+.shuffle-btn:hover { border-color: var(--ink3); color: var(--ink); }
 
 /* ══════════════════════════════════════
-LIST MODE
+   LIST MODE
 ══════════════════════════════════════ */
 .list-section { margin-bottom: 36px; }
 .list-section-title {
-font-family: var(–serif); font-size: 17px; font-weight: 600;
-color: var(–ink); margin-bottom: 14px;
-padding-bottom: 10px; border-bottom: 1px solid var(–rule);
-display: flex; align-items: center; gap: 10px;
+  font-family: var(--serif); font-size: 17px; font-weight: 600;
+  color: var(--ink); margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
 }
 .list-card {
-background: var(–card-bg);
-border: 1px solid var(–rule);
-border-radius: var(–radius);
-margin-bottom: 10px;
-overflow: hidden;
-box-shadow: 0 1px 4px rgba(60,50,30,0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(60,50,30,0.05);
 }
 .list-card-head {
-padding: 14px 20px;
-display: flex; justify-content: space-between; align-items: flex-start;
-cursor: pointer; gap: 16px;
+  padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  cursor: pointer; gap: 16px;
 }
-.list-q { font-size: 14px; font-weight: 500; color: var(–ink); flex: 1; }
-.list-toggle { color: var(–ink3); font-size: 16px; transition: transform .25s; flex-shrink: 0; }
+.list-q { font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; }
+.list-toggle { color: var(--ink3); font-size: 16px; transition: transform .25s; flex-shrink: 0; }
 .list-card.open .list-toggle { transform: rotate(45deg); }
 .list-card-body {
-display: none; padding: 0 20px 16px;
-font-size: 13px; color: var(–ink2);
-border-top: 1px solid var(–rule); padding-top: 14px;
+  display: none; padding: 0 20px 16px;
+  font-size: 13px; color: var(--ink2);
+  border-top: 1px solid var(--rule); padding-top: 14px;
 }
 .list-card.open .list-card-body { display: block; }
 
 /* inline badge */
 .badge {
-display: inline-block; font-size: 10px; font-family: var(–mono);
-padding: 2px 7px; border-radius: 4px; margin: 2px;
-font-weight: 500; letter-spacing: .04em;
+  display: inline-block; font-size: 10px; font-family: var(--mono);
+  padding: 2px 7px; border-radius: 4px; margin: 2px;
+  font-weight: 500; letter-spacing: .04em;
 }
-.b-teal { background: var(–teal-light); color: var(–teal); }
-.b-orange { background: var(–orange-light); color: var(–orange); }
-.b-red { background: var(–red-light); color: var(–red); }
-.b-blue { background: var(–blue-light); color: var(–blue); }
-.b-ink { background: rgba(30,26,20,.08); color: var(–ink2); }
+.b-teal { background: var(--teal-light); color: var(--teal); }
+.b-orange { background: var(--orange-light); color: var(--orange); }
+.b-red { background: var(--red-light); color: var(--red); }
+.b-blue { background: var(--blue-light); color: var(--blue); }
+.b-ink { background: rgba(30,26,20,.08); color: var(--ink2); }
 
 /* ── TOPIC COLOR DOTS ── */
-.dot-rsi { background: var(–teal); }
-.dot-lemon { background: var(–blue); }
-.dot-algo { background: var(–orange); }
+.dot-rsi { background: var(--teal); }
+.dot-lemon { background: var(--blue); }
+.dot-algo { background: var(--orange); }
 .dot-drug { background: #6b4fbb; }
-.dot-ext { background: var(–red); }
+.dot-ext { background: var(--red); }
 
 /* ── RESPONSIVE ── */
 @media(max-width:640px){
-.site-header { padding: 20px; flex-direction:column; align-items:flex-start; gap:12px; }
-.topic-nav { padding: 12px 20px; }
-.main { padding: 24px 20px 60px; }
-.flip-face { padding: 24px 20px; }
-.flip-q { font-size: 18px; }
+  .site-header { padding: 20px; flex-direction:column; align-items:flex-start; gap:12px; }
+  .topic-nav { padding: 12px 20px; }
+  .main { padding: 24px 20px 60px; }
+  .flip-face { padding: 24px 20px; }
+  .flip-q { font-size: 18px; }
 }
 </style>
-
 </head>
 <body>
 
@@ -321,7 +319,6 @@ font-weight: 500; letter-spacing: .04em;
 <main class="main">
 
   <!-- ── FLIP MODE ── -->
-
   <div id="flip-mode">
     <div class="progress-row">
       <span class="progress-label" id="prog-label">1 / 30</span>
@@ -352,7 +349,6 @@ font-weight: 500; letter-spacing: .04em;
   </div>
 
   <!-- ── LIST MODE ── -->
-
   <div id="list-mode"></div>
 
 </main>
@@ -895,6 +891,5 @@ function setTopic(t, btn) {
 // ── INIT ──
 renderFlip();
 </script>
-
 </body>
 </html>

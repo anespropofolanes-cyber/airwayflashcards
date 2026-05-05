@@ -1,1 +1,889 @@
-# airwayflashcards
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>氣道麻醉 · 背誦小卡</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ee;
+  --card-bg: #fefcf8;
+  --card-shadow: 0 2px 16px rgba(60,50,30,0.10), 0 1px 3px rgba(60,50,30,0.07);
+  --card-shadow-hover: 0 8px 40px rgba(60,50,30,0.14), 0 2px 8px rgba(60,50,30,0.09);
+  --ink: #1e1a14;
+  --ink2: #5a5244;
+  --ink3: #9a9086;
+  --rule: rgba(60,50,30,0.10);
+  --rule2: rgba(60,50,30,0.06);
+  --teal: #2a7c6f;
+  --teal-light: #e6f2f0;
+  --orange: #c4622a;
+  --orange-light: #fdf0e8;
+  --red: #b83232;
+  --red-light: #fdf0f0;
+  --blue: #2b5fa8;
+  --blue-light: #eef3fb;
+  --serif: 'Noto Serif TC', serif;
+  --sans: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 7px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: .5;
+}
+
+/* ── HEADER ── */
+.site-header {
+  padding: 28px 40px 20px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  border-bottom: 1px solid var(--rule);
+  position: relative; z-index: 10;
+}
+.site-title {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+.site-sub {
+  font-size: 12px; color: var(--ink3);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+.mode-toggle {
+  display: flex; gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 8px; overflow: hidden;
+  background: var(--card-bg);
+}
+.mode-btn {
+  padding: 8px 18px; font-size: 13px; font-weight: 500;
+  color: var(--ink3); cursor: pointer; border: none;
+  background: transparent; font-family: var(--sans);
+  transition: all .2s;
+}
+.mode-btn.active { background: var(--ink); color: #fefcf8; }
+
+/* ── TOPIC NAV ── */
+.topic-nav {
+  padding: 16px 40px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule);
+  position: relative; z-index: 10;
+}
+.topic-btn {
+  padding: 6px 16px; font-size: 12px; font-weight: 500;
+  border-radius: 20px; cursor: pointer;
+  border: 1px solid var(--rule);
+  background: var(--card-bg); color: var(--ink2);
+  font-family: var(--sans); transition: all .2s;
+  letter-spacing: 0.01em;
+}
+.topic-btn:hover { border-color: var(--ink3); color: var(--ink); }
+.topic-btn.active { background: var(--ink); color: #fefcf8; border-color: var(--ink); }
+
+/* ── MAIN ── */
+.main { max-width: 900px; margin: 0 auto; padding: 36px 40px 80px; position: relative; z-index: 1; }
+
+/* ── PROGRESS ── */
+.progress-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px;
+}
+.progress-label { font-size: 12px; font-family: var(--mono); color: var(--ink3); }
+.progress-track {
+  flex: 1; margin: 0 16px; height: 3px;
+  background: var(--rule); border-radius: 2px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--ink);
+  border-radius: 2px; transition: width .4s;
+}
+
+/* ══════════════════════════════════════
+   FLIP CARD MODE
+══════════════════════════════════════ */
+#flip-mode { display: block; }
+#list-mode { display: none; }
+
+.flip-stage {
+  perspective: 1200px;
+  margin-bottom: 24px;
+}
+.flip-card-wrap {
+  width: 100%; min-height: 300px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+}
+.flip-card-wrap.flipped { transform: rotateY(180deg); }
+
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  padding: 40px 48px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+}
+.flip-face.back { transform: rotateY(180deg); }
+
+.flip-card-cat {
+  font-size: 10px; font-family: var(--mono);
+  letter-spacing: .14em; text-transform: uppercase;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.cat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.flip-q {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 500;
+  color: var(--ink); line-height: 1.5;
+  margin-bottom: 12px;
+}
+.flip-hint {
+  font-size: 13px; color: var(--ink3);
+  font-family: var(--mono);
+}
+.flip-tap {
+  position: absolute; bottom: 20px; right: 24px;
+  font-size: 11px; font-family: var(--mono);
+  color: var(--ink3); letter-spacing: .06em;
+}
+
+.flip-a-label {
+  font-size: 10px; font-family: var(--mono);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 16px;
+}
+.flip-answer {
+  font-size: 15px; color: var(--ink);
+  line-height: 1.85;
+}
+.flip-answer strong { color: var(--ink); font-weight: 600; }
+.flip-answer .kw {
+  display: inline-block;
+  background: var(--ink); color: #fefcf8;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  padding: 1px 7px; border-radius: 4px;
+  letter-spacing: .04em; margin: 1px 2px;
+  vertical-align: middle;
+}
+.flip-answer .hl { color: var(--teal); font-weight: 500; }
+.flip-answer .warn { color: var(--orange); font-weight: 500; }
+.flip-answer .danger { color: var(--red); font-weight: 500; }
+
+.flip-answer table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.flip-answer table td { padding: 6px 10px; border-bottom: 1px solid var(--rule2); vertical-align: top; }
+.flip-answer table td:first-child { color: var(--ink3); font-family: var(--mono); font-size: 11px; white-space: nowrap; width: 28%; }
+
+.flip-answer ul { padding-left: 0; list-style: none; }
+.flip-answer ul li { padding: 4px 0; border-bottom: 1px solid var(--rule2); display: flex; gap: 10px; }
+.flip-answer ul li:last-child { border-bottom: none; }
+.flip-answer ul li::before { content: '—'; color: var(--ink3); flex-shrink: 0; }
+
+/* card nav */
+.card-nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.nav-arrow {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--rule); background: var(--card-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s; color: var(--ink2);
+  font-size: 18px;
+}
+.nav-arrow:hover { border-color: var(--ink3); color: var(--ink); box-shadow: var(--card-shadow); }
+.nav-arrow:disabled { opacity: .3; pointer-events: none; }
+.card-counter {
+  font-size: 13px; font-family: var(--mono);
+  color: var(--ink3); min-width: 70px; text-align: center;
+}
+.shuffle-btn {
+  padding: 8px 16px; font-size: 12px; font-weight: 500;
+  border-radius: 20px; border: 1px solid var(--rule);
+  background: var(--card-bg); color: var(--ink2);
+  cursor: pointer; font-family: var(--sans); transition: all .2s;
+}
+.shuffle-btn:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* ══════════════════════════════════════
+   LIST MODE
+══════════════════════════════════════ */
+.list-section { margin-bottom: 36px; }
+.list-section-title {
+  font-family: var(--serif); font-size: 17px; font-weight: 600;
+  color: var(--ink); margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+}
+.list-card {
+  background: var(--card-bg);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(60,50,30,0.05);
+}
+.list-card-head {
+  padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  cursor: pointer; gap: 16px;
+}
+.list-q { font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; }
+.list-toggle { color: var(--ink3); font-size: 16px; transition: transform .25s; flex-shrink: 0; }
+.list-card.open .list-toggle { transform: rotate(45deg); }
+.list-card-body {
+  display: none; padding: 0 20px 16px;
+  font-size: 13px; color: var(--ink2);
+  border-top: 1px solid var(--rule); padding-top: 14px;
+}
+.list-card.open .list-card-body { display: block; }
+
+/* inline badge */
+.badge {
+  display: inline-block; font-size: 10px; font-family: var(--mono);
+  padding: 2px 7px; border-radius: 4px; margin: 2px;
+  font-weight: 500; letter-spacing: .04em;
+}
+.b-teal { background: var(--teal-light); color: var(--teal); }
+.b-orange { background: var(--orange-light); color: var(--orange); }
+.b-red { background: var(--red-light); color: var(--red); }
+.b-blue { background: var(--blue-light); color: var(--blue); }
+.b-ink { background: rgba(30,26,20,.08); color: var(--ink2); }
+
+/* ── TOPIC COLOR DOTS ── */
+.dot-rsi { background: var(--teal); }
+.dot-lemon { background: var(--blue); }
+.dot-algo { background: var(--orange); }
+.dot-drug { background: #6b4fbb; }
+.dot-ext { background: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .site-header { padding: 20px; flex-direction:column; align-items:flex-start; gap:12px; }
+  .topic-nav { padding: 12px 20px; }
+  .main { padding: 24px 20px 60px; }
+  .flip-face { padding: 28px 24px; }
+  .flip-q { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="site-title">氣道麻醉 · 背誦小卡</div>
+    <div class="site-sub">Airway Anesthesia Flashcards · 5 topics · 30 cards</div>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-flip" onclick="setMode('flip')">翻牌練習</button>
+    <button class="mode-btn" id="btn-list" onclick="setMode('list')">速查模式</button>
+  </div>
+</header>
+
+<nav class="topic-nav">
+  <button class="topic-btn active" onclick="setTopic('all',this)">全部</button>
+  <button class="topic-btn" onclick="setTopic('rsi',this)">RSI 流程</button>
+  <button class="topic-btn" onclick="setTopic('lemon',this)">LEMON 評估</button>
+  <button class="topic-btn" onclick="setTopic('algo',this)">困難氣道演算法</button>
+  <button class="topic-btn" onclick="setTopic('drug',this)">藥物選擇</button>
+  <button class="topic-btn" onclick="setTopic('ext',this)">拔管 &amp; 逆轉</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── FLIP MODE ── -->
+  <div id="flip-mode">
+    <div class="progress-row">
+      <span class="progress-label" id="prog-label">1 / 30</span>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:3.3%"></div></div>
+      <button class="shuffle-btn" onclick="shuffle()">隨機排列</button>
+    </div>
+    <div class="flip-stage" onclick="flipCard()">
+      <div class="flip-card-wrap" id="flip-card">
+        <!-- FRONT -->
+        <div class="flip-face front">
+          <div class="flip-card-cat" id="card-cat"></div>
+          <div class="flip-q" id="card-q"></div>
+          <div class="flip-hint" id="card-hint"></div>
+          <div class="flip-tap">點擊翻面 →</div>
+        </div>
+        <!-- BACK -->
+        <div class="flip-face back">
+          <div class="flip-a-label">答案</div>
+          <div class="flip-answer" id="card-a"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-nav">
+      <button class="nav-arrow" id="btn-prev" onclick="prevCard()" disabled>←</button>
+      <span class="card-counter" id="card-counter">1 / 30</span>
+      <button class="nav-arrow" id="btn-next" onclick="nextCard()">→</button>
+    </div>
+  </div>
+
+  <!-- ── LIST MODE ── -->
+  <div id="list-mode"></div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════
+// CARD DATA
+// ══════════════════════════════════════════════════
+const cards = [
+
+// ─── RSI 流程 ───────────────────────────────────
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'RSI 的核心原則是什麼？與一般插管最大的差異？',
+  hint:'想想為什麼叫「快速」序列',
+  a:`<ul>
+    <li><span class="kw">快速給藥</span> 誘導藥與肌鬆藥連續快速注入</li>
+    <li><span class="kw">不面罩通氣</span> 誘導後不進行 BMV，減少胃充氣與誤吸</li>
+    <li><span class="kw">Cricoid pressure</span> 誘導開始 → 確認插管成功後才解除</li>
+    <li><span class="kw">預充氧</span> 100% O₂ ≥ 3 分鐘，建立氧氣儲備</li>
+  </ul>
+  <div style="margin-top:10px;font-size:12px;color:var(--ink3);">核心目的：降低飽胃病人誤吸風險</div>`
+},
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'RSI 的標準時序軸是什麼？各時間點護理師要做什麼？',
+  hint:'T-15 / T-10 / T-5 / T-0 / T+1 / T+2',
+  a:`<table>
+    <tr><td>T-15 min</td><td>設備備妥、困難氣道車就位、呼吸器設定</td></tr>
+    <tr><td>T-10 min</td><td>抽藥完成（三讀五對）、高警訊藥雙人核對</td></tr>
+    <tr><td>T-5 min</td><td>確認 IV 通暢、監測器接妥、<span class="hl">預充氧開始</span></td></tr>
+    <tr><td>T-0</td><td>給誘導藥、肌鬆藥，<span class="warn">不 BMV</span></td></tr>
+    <tr><td>T+1</td><td>插管，確認 <span class="kw">EtCO₂ 波形</span> + 雙側呼吸音</td></tr>
+    <tr><td>T+2</td><td>固定 ETT、記錄深度（男 22-23、女 20-21 cm）</td></tr>
+  </table>`
+},
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'預充氧的目標是什麼？什麼情況需要更長時間？',
+  hint:'EtO₂ 目標值 + 特殊族群',
+  a:`<ul>
+    <li>目標：<span class="kw">EtO₂ &gt; 90%</span>（氮氣沖洗完成指標）</li>
+    <li>標準：100% O₂，面罩緊密貼合，<span class="hl">≥ 3 分鐘</span></li>
+    <li>緊急時：8 次深呼吸（約 60 秒，次佳選擇）</li>
+  </ul>
+  <div style="margin-top:8px;"><strong>需要更長預充氧：</strong></div>
+  <ul>
+    <li>肥胖病人（FRC 減少，去飽和快）→ Ramped position</li>
+    <li>孕婦（FRC 減少 20-30%，氧耗增加）</li>
+    <li>小兒（去飽和速度為成人 2-4 倍）</li>
+  </ul>`
+},
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'Cricoid pressure（Sellick\'s maneuver）的正確手法與時機？',
+  hint:'施壓點、力道、開始/解除時間',
+  a:`<ul>
+    <li><span class="kw">施壓點</span> 環狀軟骨（不是甲狀軟骨），向後壓迫食道</li>
+    <li><span class="kw">手法</span> 食指、中指、無名指三指，力道 20-30 N</li>
+    <li><span class="kw">開始</span> 誘導藥注入時即開始</li>
+    <li><span class="kw">解除</span> 確認 ETT 在氣管、氣囊充氣後，由麻醉醫師下令解除</li>
+  </ul>
+  <div style="margin-top:8px;font-size:12px;" class="warn">注意：施壓過強反而使喉部偏移，影響插管視野。若視野變差，可輕度減壓（不完全解除）。</div>`
+},
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'產科 RSI 與標準 RSI 的三大關鍵差異？',
+  hint:'體位 + 藥物 + 特殊操作',
+  a:`<ul>
+    <li><span class="kw">子宮左移</span> 左傾 15°（LUD）全程維持，防主動脈腔靜脈壓迫</li>
+    <li><span class="kw">藥物首選</span> Ketamine 1-1.5 mg/kg（維持血壓）+ Succinylcholine 1.5 mg/kg</li>
+    <li><span class="kw">Cricoid pressure</span> 產科 RSI 必要操作，飽胃 + 誤吸高風險</li>
+  </ul>
+  <div style="margin-top:8px;"><strong>其他注意：</strong></div>
+  <ul>
+    <li>ETT 準備 7.0（水腫備 6.5）</li>
+    <li>維持 EtCO₂ <span class="hl">30-35 mmHg</span>（勿過度通氣，影響胎盤血流）</li>
+    <li>娩出後給 Oxytocin</li>
+  </ul>`
+},
+{
+  topic:'rsi', topicLabel:'RSI 流程', dotClass:'dot-rsi',
+  q:'插管後如何確認 ETT 位置正確？哪個方法最可靠？',
+  hint:'Gold standard 是哪個？',
+  a:`<div style="margin-bottom:10px;"><span class="kw">Gold standard</span> <span class="hl">EtCO₂ 波形持續出現</span></div>
+  <table>
+    <tr><td>EtCO₂</td><td>最可靠。無波形 = 假設食道插管，立即重試</td></tr>
+    <tr><td>雙側呼吸音</td><td>聽診腋下（非胸骨旁），排除單側插管</td></tr>
+    <tr><td>胸部起伏</td><td>輔助，非獨立確認標準</td></tr>
+    <tr><td>霧化</td><td>不可靠，胃插管也可能出現霧化</td></tr>
+    <tr><td>胸部 X 光</td><td>確認深度（隆突上方 2-4 cm）</td></tr>
+  </table>`
+},
+
+// ─── LEMON 評估 ─────────────────────────────────
+{
+  topic:'lemon', topicLabel:'LEMON 評估', dotClass:'dot-lemon',
+  q:'LEMON 各字母代表什麼？',
+  hint:'五個評估面向',
+  a:`<table>
+    <tr><td>L</td><td><strong>L</strong>ook externally — 外觀異常（肥胖、面部外傷、頸短）</td></tr>
+    <tr><td>E</td><td><strong>E</strong>valuate 3-3-2 法則 — 切齒間距 ≥3 指；頦舌骨距 ≥3 指；甲頦距 ≥2 指</td></tr>
+    <tr><td>M</td><td><strong>M</strong>allampati 分級 — I/II 低風險；III 中；IV 高風險</td></tr>
+    <tr><td>O</td><td><strong>O</strong>bstruction — 氣道阻塞（會厭炎、腫瘤、異物）</td></tr>
+    <tr><td>N</td><td><strong>N</strong>eck mobility — 頸部活動度受限（頸椎問題、肥胖）</td></tr>
+  </table>
+  <div style="margin-top:8px;font-size:12px;color:var(--ink3);">總分 0-10；≥5 為中風險，≥8 為高風險</div>`
+},
+{
+  topic:'lemon', topicLabel:'LEMON 評估', dotClass:'dot-lemon',
+  q:'3-3-2 法則各代表什麼測量？正常值是？',
+  hint:'三個不同距離的意義',
+  a:`<table>
+    <tr><td>第一個 3</td><td>切齒間距（張口度） ≥ 3 橫指（約 4 cm）<br><span class="warn">&lt;3 指 → 喉鏡置入困難</span></td></tr>
+    <tr><td>第二個 3</td><td>頦舌骨距（下巴到舌骨） ≥ 3 橫指<br>代表舌頭移動空間</td></tr>
+    <tr><td>2</td><td>甲頦距（甲狀軟骨到下巴） ≥ 2 橫指（約 6 cm）<br><span class="warn">&lt;6 cm → 聲門位置偏前，插管困難</span></td></tr>
+  </table>`
+},
+{
+  topic:'lemon', topicLabel:'LEMON 評估', dotClass:'dot-lemon',
+  q:'Mallampati 分級 I–IV 各看到什麼？',
+  hint:'從完整可見到完全看不到',
+  a:`<table>
+    <tr><td>Class I</td><td>軟顎、懸雍垂、扁桃體<strong>完整可見</strong> <span class="hl">→ 低風險</span></td></tr>
+    <tr><td>Class II</td><td>軟顎可見，懸雍垂<strong>部分被舌根遮蓋</strong></td></tr>
+    <tr><td>Class III</td><td><strong>僅見軟顎基部</strong>，懸雍垂完全不見 <span class="warn">→ 困難風險上升</span></td></tr>
+    <tr><td>Class IV</td><td><strong>僅見硬顎</strong>，軟顎完全不可見 <span class="danger">→ 困難插管高機率</span></td></tr>
+  </table>
+  <div style="margin-top:8px;font-size:12px;color:var(--ink3);">評估時：坐正、嘴巴完全張開、舌頭伸出、不發音</div>`
+},
+{
+  topic:'lemon', topicLabel:'LEMON 評估', dotClass:'dot-lemon',
+  q:'Cormack-Lehane 分級與 Mallampati 有何不同？各級怎麼處理？',
+  hint:'一個是術前評估，一個是術中所見',
+  a:`<div style="margin-bottom:8px;font-size:12px;color:var(--ink3);">Mallampati = 術前預測；Cormack-Lehane = 喉鏡置入後實際所見</div>
+  <table>
+    <tr><td>Grade I</td><td>聲帶完整可見 → 標準插管</td></tr>
+    <tr><td>Grade II</td><td>聲帶後部可見 → 可能需 BURP / Stylet</td></tr>
+    <tr><td>Grade III</td><td>僅見會厭 <span class="warn">→ 換視頻喉鏡 / Bougie</span></td></tr>
+    <tr><td>Grade IV</td><td>無聲門結構 <span class="danger">→ 立即啟動困難氣道流程</span></td></tr>
+  </table>`
+},
+{
+  topic:'lemon', topicLabel:'LEMON 評估', dotClass:'dot-lemon',
+  q:'面罩通氣困難（Difficult BMV）的記憶口訣是什麼？',
+  hint:'MOANS 或 BONES',
+  a:`<div style="margin-bottom:10px;"><span class="kw">MOANS</span> — 面罩通氣困難預測</div>
+  <table>
+    <tr><td>M</td><td><strong>M</strong>ask seal — 面罩密封困難（鬍鬚、面部外傷、無牙）</td></tr>
+    <tr><td>O</td><td><strong>O</strong>besity / Obstruction — 肥胖 BMI>26 或氣道阻塞</td></tr>
+    <tr><td>A</td><td><strong>A</strong>ge >55 歲</td></tr>
+    <tr><td>N</td><td><strong>N</strong>o teeth — 無牙（面罩貼合差）</td></tr>
+    <tr><td>S</td><td><strong>S</strong>nores / Stiff — OSAS 或肺順應性差</td></tr>
+  </table>
+  <div style="margin-top:6px;font-size:12px;color:var(--ink3);">≥2 項陽性 → 面罩通氣困難風險增加</div>`
+},
+
+// ─── 困難氣道演算法 ──────────────────────────────
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'ASA 2022 困難氣道演算法：預期困難氣道的第一步驟是什麼？',
+  hint:'先決定清醒還是誘導後',
+  a:`<div style="margin-bottom:10px;">核心決策：<span class="kw">清醒插管</span> vs <span class="kw">誘導後插管</span></div>
+  <div style="margin-bottom:8px;"><strong>選擇清醒插管的情境：</strong></div>
+  <ul>
+    <li>多重困難氣道指標並存</li>
+    <li>飽胃（誤吸風險高）</li>
+    <li>面罩通氣困難 + 插管困難</li>
+    <li>無法耐受短暫缺氧</li>
+    <li>口腔癌 / 頭頸部放射治療後</li>
+  </ul>
+  <div style="margin-top:6px;font-size:12px;" class="warn">若選擇誘導後插管：必須備妥 Plan B/C/D，不能只有 Plan A</div>`
+},
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'Plan A → B → C → D 分別代表什麼？切換時機？',
+  hint:'四個計畫的優先順序',
+  a:`<table>
+    <tr><td>Plan A</td><td>直接 / 視頻喉鏡插管<br><span class="warn">最多嘗試 3 次，超過即換 Plan B</span></td></tr>
+    <tr><td>Plan B</td><td>聲門上氣道裝置（SAD / LMA）維持氧合<br>評估是否可在 SAD 下繼續手術</td></tr>
+    <tr><td>Plan C</td><td>雙人面罩通氣 + 給逆轉藥 → <span class="hl">喚醒病人</span></td></tr>
+    <tr><td>Plan D</td><td><span class="danger">CICO → 環甲膜切開（Scalpel-Bougie-Tube）</span></td></tr>
+  </table>
+  <div style="margin-top:8px;font-size:12px;color:var(--ink3);">切換原則：每個 Plan 失敗後立即升級，不拖延</div>`
+},
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'CICO 是什麼？發生時護理師的立即行動？',
+  hint:'Cannot Intubate Cannot Oxygenate',
+  a:`<div style="margin-bottom:10px;"><span class="kw">CICO</span> = Cannot Intubate, Cannot Oxygenate<br>面罩通氣與 SAD 均失敗，SpO₂ 持續下降</div>
+  <div style="margin-bottom:8px;"><span class="danger">生命威脅，立即行動：</span></div>
+  <ul>
+    <li>呼叫緊急代碼，通知外科 / ENT 即刻到場</li>
+    <li>推出環甲膜切開包（Scalpel + Bougie + ETT 6.0）</li>
+    <li>準備頸部定位（環狀軟骨與甲狀軟骨間的凹陷）</li>
+    <li>記錄時間軸：SpO₂ 下降時間、各項處置時間</li>
+    <li>準備心肺復甦（若心跳停止）</li>
+  </ul>`
+},
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'清醒纖維支氣管鏡插管（Awake FOB）的步驟？',
+  hint:'局麻 → 鎮靜 → 插管順序',
+  a:`<ul>
+    <li><span class="kw">1. 乾燥分泌物</span> Glycopyrrolate 0.2 mg IM（插管前 30 分鐘）</li>
+    <li><span class="kw">2. 表面麻醉</span> Lidocaine 4% 霧化吸入 + 環甲膜穿刺注射 2% 2 mL</li>
+    <li><span class="kw">3. 輕度鎮靜</span> Dexmedetomidine 0.5-1 mcg/kg（保留自主呼吸）</li>
+    <li><span class="kw">4. FOB 引導</span> 纖維支氣管鏡通過聲門後，套入 ETT</li>
+    <li><span class="kw">5. 確認後</span> 見 EtCO₂ 波形才給誘導藥 + 肌鬆藥</li>
+  </ul>
+  <div style="margin-top:8px;font-size:12px;" class="warn">關鍵：全程維持自主呼吸，直到確認 ETT 在氣管內</div>`
+},
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'Bougie 的使用時機與「tracheal clicks」是什麼？',
+  hint:'Grade III 的首選輔助',
+  a:`<div style="margin-bottom:8px;"><span class="kw">適用</span> Cormack-Lehane Grade III（僅見會厭，聲帶不可見）</div>
+  <ul>
+    <li>Bougie 尖端預彎 30-40°，沿會厭下緣盲探進入聲門</li>
+    <li><span class="hl">Tracheal clicks</span> = 推進時感覺到輕微「搓衣板感」，代表 bougie 尖端在氣管環之間，確認在氣管內</li>
+    <li>進入約 25-30 cm 後感到阻力（隆突）也代表在氣管</li>
+    <li>套入 ETT，旋轉 90° 逆時針幫助通過聲門前緣，退出 Bougie</li>
+  </ul>
+  <div style="margin-top:6px;font-size:12px;color:var(--ink3);">Bougie ≠ Stylet：Bougie 是引導工具（長 60 cm）；Stylet 是支撐 ETT 形狀用</div>`
+},
+{
+  topic:'algo', topicLabel:'困難氣道演算法', dotClass:'dot-algo',
+  q:'環甲膜切開術 Scalpel-Bougie-Tube 的步驟？',
+  hint:'CICO 時的外科氣道',
+  a:`<ul>
+    <li><span class="kw">定位</span> 甲狀軟骨下緣與環狀軟骨上緣之間的凹陷（環甲膜）</li>
+    <li><span class="kw">切開</span> Scalpel 橫向切開皮膚及環甲膜，約 1.5 cm</li>
+    <li><span class="kw">撐開</span> 手指或 tracheal hook 撐開切口並固定</li>
+    <li><span class="kw">引導</span> Bougie 插入氣管，確認 tracheal clicks</li>
+    <li><span class="kw">插管</span> 套入 ETT 6.0（有氣囊），充氣囊</li>
+    <li><span class="kw">確認</span> EtCO₂ 波形，固定，呼叫 ENT 計畫正式氣切</li>
+  </ul>`
+},
+
+// ─── 藥物選擇 ────────────────────────────────────
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'RSI 誘導藥物各自適用什麼情境？',
+  hint:'Propofol / Ketamine / Etomidate 的選擇邏輯',
+  a:`<table>
+    <tr><td>Propofol<br><span style="font-family:var(--mono);font-size:10px;">1.5-2.5 mg/kg</span></td><td>血動力穩定的標準選擇。<span class="warn">低血壓時減量至 1 mg/kg</span></td></tr>
+    <tr><td>Ketamine<br><span style="font-family:var(--mono);font-size:10px;">1-2 mg/kg</span></td><td>血動力不穩、低血壓、產科（維持血壓、保留反射）。支氣管痙攣患者有利。<span class="warn">子癇前症慎用</span></td></tr>
+    <tr><td>Etomidate<br><span style="font-family:var(--mono);font-size:10px;">0.3 mg/kg</span></td><td>心臟功能差、血動力極不穩定的備用選擇。<span class="warn">抑制腎上腺皮質素合成（單次仍有爭議）</span></td></tr>
+  </table>`
+},
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'Succinylcholine vs Rocuronium：如何選擇？各自的禁忌是？',
+  hint:'RSI 肌鬆藥的核心比較',
+  a:`<table>
+    <tr><td></td><td><strong>Succinylcholine</strong></td><td><strong>Rocuronium (RSI)</strong></td></tr>
+    <tr><td>劑量</td><td>1.5 mg/kg IV</td><td>1.2 mg/kg IV</td></tr>
+    <tr><td>起效</td><td>45-60 秒</td><td>60-90 秒</td></tr>
+    <tr><td>時效</td><td>10-12 分鐘</td><td>60+ 分鐘</td></tr>
+    <tr><td>逆轉</td><td>自然代謝（不可逆轉）</td><td>Sugammadex 16 mg/kg</td></tr>
+  </table>
+  <div style="margin-top:8px;"><span class="danger">Succinylcholine 禁忌：</span> 高鉀血症、大面積燒燙傷（&gt;24h）、長期臥床、神經病變、惡性高熱病史</div>
+  <div style="margin-top:4px;" class="warn">有禁忌時選 Rocuronium 1.2 mg/kg + 備 Sugammadex</div>`
+},
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'Sugammadex 的劑量怎麼算？各情境的選法？',
+  hint:'依 TOF 個數決定',
+  a:`<table>
+    <tr><td>TOF ≥ 2 顫搐</td><td><span class="kw">2 mg/kg</span> — 一般逆轉</td></tr>
+    <tr><td>TOF = 1-2 顫搐</td><td><span class="kw">4 mg/kg</span></td></tr>
+    <tr><td>無顫搐（深度肌鬆）</td><td><span class="kw">16 mg/kg</span> — CICO 緊急逆轉</td></tr>
+  </table>
+  <div style="margin-top:8px;">
+    <strong>小兒體重計算：</strong> 同上比例，確認 TOF 後給藥<br>
+    <span class="hl">逆轉後目標：TOF ratio &gt; 0.9</span>
+  </div>
+  <div style="margin-top:6px;font-size:12px;color:var(--ink3);">Sugammadex 只逆轉 Rocuronium / Vecuronium，對 Succinylcholine 無效</div>`
+},
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'小兒 RSI 藥物劑量：Propofol、Succinylcholine、Atropine',
+  hint:'小兒劑量與成人不同，Atropine 的特殊考量',
+  a:`<table>
+    <tr><td>Propofol</td><td><span class="kw">2.5-3 mg/kg</span>（小兒劑量較成人高）</td></tr>
+    <tr><td>Ketamine</td><td><span class="kw">1-2 mg/kg</span>（躁動、血壓低選擇）</td></tr>
+    <tr><td>Succinylcholine</td><td><span class="kw">2 mg/kg</span>（&lt;10 kg）/ 1.5 mg/kg（≥10 kg）</td></tr>
+    <tr><td>Rocuronium</td><td><span class="kw">1.2 mg/kg</span>（同成人比例）</td></tr>
+    <tr><td>Atropine</td><td><span class="kw">0.02 mg/kg</span>（最低 0.1 mg）<br>&lt;1 歲必給；1-5 歲常規給予（預防迷走神經反射）</td></tr>
+  </table>`
+},
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'氣囊壓力應維持在多少？過高或過低會有什麼問題？',
+  hint:'成人標準範圍',
+  a:`<div style="margin-bottom:8px;">目標：<span class="kw">20-30 cmH₂O</span>（成人）</div>
+  <table>
+    <tr><td class="danger">&lt;20 cmH₂O</td><td>氣囊漏氣 → 通氣不足、誤吸風險</td></tr>
+    <tr><td class="danger">&gt;30 cmH₂O</td><td>氣管黏膜壓迫缺血 → 潰瘍、氣管狹窄</td></tr>
+  </table>
+  <ul style="margin-top:8px;">
+    <li>小兒有氣囊管：&lt;20 cmH₂O（氣管更脆弱）</li>
+    <li>測量工具：氣囊壓力計（Cuff pressure gauge）</li>
+    <li>長時間手術或體位改變後需重新確認</li>
+  </ul>`
+},
+{
+  topic:'drug', topicLabel:'藥物選擇', dotClass:'dot-drug',
+  q:'Lidocaine 在氣道管理的用途與劑量？',
+  hint:'三個不同使用情境',
+  a:`<table>
+    <tr><td>清醒插管表面麻醉</td><td>4% Lidocaine 霧化吸入 4 mL<br>+ 環甲膜穿刺 2% 2 mL</td></tr>
+    <tr><td>拔管前減少嗆咳</td><td>1-1.5 mg/kg IV（拔管前 1-2 分鐘）</td></tr>
+    <tr><td>鼻腔表面麻醉</td><td>2-4% 噴霧於鼻腔（鼻插管前）</td></tr>
+  </table>
+  <div style="margin-top:8px;" class="warn">總劑量注意毒性上限：4-5 mg/kg（不含腎上腺素）</div>`
+},
+
+// ─── 拔管 & 逆轉 ─────────────────────────────────
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'拔管前必須確認的四大類標準？',
+  hint:'神經肌肉 / 意識 / 呼吸 / 血動力',
+  a:`<table>
+    <tr><td>神經肌肉</td><td>TOF ratio &gt;0.9；抬頭 ≥5 秒；潮氣量 &gt;5 mL/kg</td></tr>
+    <tr><td>意識</td><td>對呼喚反應、可遵從指令、保護性反射恢復（吞嚥、咳嗽）</td></tr>
+    <tr><td>呼吸</td><td>SpO₂ &gt;95%（FiO₂ 0.4 以下）；呼吸速率 10-30 次/分</td></tr>
+    <tr><td>血動力</td><td>血壓在基礎值 ±20%；HR 50-110；體溫 &gt;36°C</td></tr>
+  </table>
+  <div style="margin-top:6px;font-size:12px;" class="warn">全部達標才可考慮拔管，不能因為「看起來好」就提前拔管</div>`
+},
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'高風險拔管的定義是什麼？應採取哪些特殊措施？',
+  hint:'DAS 指引的高風險情境',
+  a:`<div style="margin-bottom:8px;"><strong>高風險情境（符合任一項）：</strong></div>
+  <ul>
+    <li>術中插管困難或嘗試 ≥ 3 次</li>
+    <li>面罩通氣困難</li>
+    <li>氣道水腫（頭頸部手術、俯臥位、大量輸液）</li>
+    <li>血動力不穩定</li>
+  </ul>
+  <div style="margin-top:8px;"><strong>特殊措施：</strong></div>
+  <ul>
+    <li><span class="kw">AEC</span> 放置（氣道交換導管），保留再插管引導路徑</li>
+    <li>清醒拔管（保護性反射完全恢復後才拔）</li>
+    <li>視頻喉鏡及 SAD 備妥於手邊</li>
+    <li>拔管後 30-60 分鐘持續監測</li>
+  </ul>`
+},
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'傳統肌鬆逆轉：Neostigmine 的使用方式與注意事項？',
+  hint:'與 Atropine 搭配使用',
+  a:`<ul>
+    <li>劑量：Neostigmine <span class="kw">0.04 mg/kg</span> + Atropine <span class="kw">0.02 mg/kg</span></li>
+    <li>搭配 Atropine 原因：Neostigmine 為 ChE 抑制劑，副交感作用強，會造成心跳過緩 / 分泌物增加 → Atropine 抵消</li>
+    <li><span class="warn">只逆轉非去極化肌鬆藥</span>（Rocuronium / Vecuronium / Cisatracurium）</li>
+    <li>最大效果約在給藥後 10-15 分鐘</li>
+    <li>殘餘肌鬆量太深時效果不佳 → 此時選 Sugammadex</li>
+  </ul>`
+},
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'喉痙攣（Laryngospasm）怎麼辨識與處置？',
+  hint:'拔管後最危險的立即併發症',
+  a:`<div style="margin-bottom:8px;"><strong>辨識：</strong></div>
+  <ul>
+    <li>高調喘鳴（部分）或<span class="danger">完全無呼吸音</span>（完全性）</li>
+    <li>SpO₂ 迅速下降，吸氣用力，胸骨上窩凹陷</li>
+    <li>常發生於分泌物、拔管刺激、淺麻醉時</li>
+  </ul>
+  <div style="margin-top:8px;"><strong>處置步驟：</strong></div>
+  <ul>
+    <li>100% O₂ 正壓面罩通氣（CPAP 25-40 cmH₂O）</li>
+    <li>Larson's point：雙手食指強力按壓下頷骨與乳突間凹陷</li>
+    <li>無改善：<span class="kw">Succinylcholine 0.1-0.5 mg/kg IV</span></li>
+    <li>嚴重：全劑量 Succinylcholine 1.5 mg/kg + 再插管</li>
+    <li>觀察是否繼發<span class="warn">負壓性肺水腫（NPPO）</span></li>
+  </ul>`
+},
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'負壓性肺水腫（NPPO）是什麼？如何辨識？',
+  hint:'喉痙攣的常見後續',
+  a:`<div style="margin-bottom:8px;"><strong>機轉：</strong><br>喉痙攣後用力吸氣 → 胸腔內負壓驟升 → 肺微血管液體外滲</div>
+  <ul>
+    <li>通常在喉痙攣解除後 <span class="warn">30-60 分鐘</span>內出現</li>
+    <li>辨識：粉紅色泡沫痰、SpO₂ 下降、呼吸急促、肺部囉音</li>
+    <li>胸部 X 光：雙側肺浸潤</li>
+  </ul>
+  <div style="margin-top:8px;"><strong>處置：</strong></div>
+  <ul>
+    <li>高流量 O₂，考慮 CPAP / BiPAP</li>
+    <li>嚴重：再插管 + PEEP 機械通氣</li>
+    <li>Furosemide 利尿可考慮</li>
+    <li>告知 ICU 準備接收</li>
+  </ul>`
+},
+{
+  topic:'ext', topicLabel:'拔管 & 逆轉', dotClass:'dot-ext',
+  q:'AEC（氣道交換導管）怎麼用？深度怎麼設定？',
+  hint:'高風險拔管的保命工具',
+  a:`<ul>
+    <li>目的：拔管後保留在氣管內，作為「再插管引導線」，必要時可供氧</li>
+    <li><span class="kw">置入深度</span>：成人 23-25 cm（門齒），<span class="warn">勿過深（隆突損傷風險）</span></li>
+    <li>抽癟 ETT 氣囊 → 移除 ETT，AEC 暫時留置</li>
+    <li>病人清醒且氧合穩定 <span class="hl">30-60 分鐘</span>後再移除</li>
+    <li>需再插管時：AEC 引導下直接套入新 ETT</li>
+  </ul>
+  <div style="margin-top:8px;font-size:12px;color:var(--ink3);">注意：AEC 留置時病人不舒適，需做好解釋與固定，避免自行拔除</div>`
+}
+];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentTopic = 'all';
+let filtered = [...cards];
+let idx = 0;
+let mode = 'flip';
+
+function getFiltered() {
+  return currentTopic === 'all' ? cards : cards.filter(c => c.topic === currentTopic);
+}
+
+// ══════════════════════════════════════════════════
+// RENDER FLIP
+// ══════════════════════════════════════════════════
+const colorMap = {
+  'dot-rsi': '#2a7c6f',
+  'dot-lemon': '#2b5fa8',
+  'dot-algo': '#c4622a',
+  'dot-drug': '#6b4fbb',
+  'dot-ext': '#b83232'
+};
+
+function renderFlip() {
+  const c = filtered[idx];
+  if (!c) return;
+  document.getElementById('flip-card').classList.remove('flipped');
+
+  const dotColor = colorMap[c.dotClass] || '#888';
+  document.getElementById('card-cat').innerHTML =
+    `<span class="cat-dot" style="background:${dotColor}"></span><span style="color:${dotColor}">${c.topicLabel}</span>`;
+  document.getElementById('card-q').textContent = c.q;
+  document.getElementById('card-hint').textContent = c.hint ? `提示：${c.hint}` : '';
+  document.getElementById('card-a').innerHTML = c.a;
+
+  const total = filtered.length;
+  document.getElementById('prog-label').textContent = `${idx+1} / ${total}`;
+  document.getElementById('card-counter').textContent = `${idx+1} / ${total}`;
+  document.getElementById('prog-fill').style.width = `${((idx+1)/total)*100}%`;
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').disabled = idx === total - 1;
+}
+
+function flipCard() {
+  document.getElementById('flip-card').classList.toggle('flipped');
+}
+function nextCard() {
+  if (idx < filtered.length - 1) { idx++; renderFlip(); }
+}
+function prevCard() {
+  if (idx > 0) { idx--; renderFlip(); }
+}
+function shuffle() {
+  filtered = filtered.sort(() => Math.random() - 0.5);
+  idx = 0; renderFlip();
+}
+
+// keyboard nav
+document.addEventListener('keydown', e => {
+  if (mode !== 'flip') return;
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft') prevCard();
+  if (e.key === ' ') { e.preventDefault(); flipCard(); }
+});
+
+// ══════════════════════════════════════════════════
+// LIST MODE
+// ══════════════════════════════════════════════════
+function renderList() {
+  const el = document.getElementById('list-mode');
+  const topicOrder = ['rsi','lemon','algo','drug','ext'];
+  const topicNames = { rsi:'RSI 流程', lemon:'LEMON 評估', algo:'困難氣道演算法', drug:'藥物選擇', ext:'拔管 & 逆轉' };
+  const topics = currentTopic === 'all' ? topicOrder : [currentTopic];
+
+  el.innerHTML = topics.map(t => {
+    const tCards = cards.filter(c => c.topic === t);
+    if (!tCards.length) return '';
+    const dotColor = colorMap['dot-'+t] || '#888';
+    const items = tCards.map((c, i) => `
+      <div class="list-card" id="lc-${t}-${i}">
+        <div class="list-card-head" onclick="toggleListCard('lc-${t}-${i}')">
+          <div class="list-q">${c.q}</div>
+          <div class="list-toggle">+</div>
+        </div>
+        <div class="list-card-body">${c.a}</div>
+      </div>`).join('');
+    return `<div class="list-section">
+      <div class="list-section-title">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};"></span>
+        ${topicNames[t]}
+      </div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+function toggleListCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  document.getElementById('flip-mode').style.display = m === 'flip' ? 'block' : 'none';
+  document.getElementById('list-mode').style.display = m === 'list' ? 'block' : 'none';
+  document.getElementById('btn-flip').classList.toggle('active', m === 'flip');
+  document.getElementById('btn-list').classList.toggle('active', m === 'list');
+  document.querySelector('.progress-row').style.display = m === 'flip' ? 'flex' : 'none';
+  if (m === 'list') renderList();
+}
+
+function setTopic(t, btn) {
+  currentTopic = t;
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filtered = getFiltered();
+  idx = 0;
+  if (mode === 'flip') renderFlip();
+  else renderList();
+}
+
+// ── INIT ──
+renderFlip();
+</script>
+</body>
+</html>
